@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block main %}
+    <div class="top">
+        <div class="container">
+            <div class="row">
+                {% for job in object_list %}
+                    <div class="col-lg-4 mt-4">
+                        <h5> {{ job.idate }}</h5>
+                        <div class="box clearfix">
+                            <a href="{% url 'job_detail' job.id %}">
+                                <img src="{{ job.picture.url }}"
+                                     alt="">
+                            </a>
+                            <h3><a href="{% url 'job_detail' job.id %}">{{ job.title }}</a></h3>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

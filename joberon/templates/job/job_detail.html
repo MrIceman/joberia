@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+    <!-- Detail Recipes-->
+    <div class="recipe-detail">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-12 text-center">
+                    <h4>{{ object.title }}</h4>
+                    <h1>{{ object.short_description }}
+                    </h1>
+                    <div class="by">
+                        {{ object.organization.name }}
+                    </div>
+                </div>
+                <div class="col-lg-8">
+
+                    <p>
+                        {{ object.description }}
+                    </p>
+
+                    <div class="tag">
+                        {% for tag in object.tags.all %}
+                            <a href="#">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="ingredient-direction">
+                        <div class="row">
+                            <div class="col-lg-6 col-sm-6">
+                                <h3>You have</h3>
+                                <ul class="ingredients">
+                                    {% for item in object.desired_profile.all %}
+                                        <li>
+                                            {{ item.label }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <h3>You'll get</h3>
+                                <ol class="directions">
+                                    {% for item in object.offered_items.all %}
+                                        <li>
+                                            {{ item.label }}
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="nutrition-facts clearfix mt-4">
+                        <h3>Bonuses</h3>
+                        {% for bonus in object.bonuses.all %}
+                            <div>
+                                <p>{{ bonus.bonus.name }}:</p>
+                                <p><strong>{{ bonus.entry }}</strong></p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+
+                    <div class="blog-comment">
+                        <h3>{{ comments | length }} Comments</h3>
+                        <hr/>
+                        <ul class="comments">
+                            {% for comment in comments %}
+                                <div class="post-comments">
+                                    <p class="meta">{{ comment.idate }} <a href="#">{{ comment.author }}</a> says : <i
+                                            class="pull-right"><a href="#">
+                                        <small>Reply</small>
+                                    </a></i></p>
+                                    <p>
+                                        {{ comment.text }}
+                                    </p>
+                                </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <div class="reply">
+                            {% if user.is_authenticated %}
+                                <h3>Your Comment</h3>
+                                <form method="post" id="commentform" class="comment-form">
+                                    <p class="comment-form-comment">
+                                    <textarea class="form-control" id="comment" name="comment" cols="45" rows="5"
+                                              aria-required="true"></textarea>
+                                    </p>
+                                    <p class="form-submit">
+                                        <input class="btn btn-submit btn-block" name="submit" type="submit" id="submit"
+                                               value="Post Commentt">
+                                    </p>
+                                </form>
+                            {% endif %}
+                            {% if not user.is_authenticated %}
+                                <h3>Sign in to leave a comment</h3>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
