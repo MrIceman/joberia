@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'joberon.apps.company',
     'joberon.apps.job',
     'joberon.apps.application',
-    'joberon.apps.alert'
+    'joberon.apps.alert',
+    'joberon.apps.spawner'
 ]
 
 MIDDLEWARE = [
