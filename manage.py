@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     read_env()  # it is important to load env before setting settings
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "joberon.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "joberia.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
