@@ -3,13 +3,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from joberia.apps.core.views import letsencrypt1, letsencrypt2
-
 urlpatterns = [
-    path('', include('joberon.apps.job.urls')),
-    path('alert/', include('joberon.apps.alert.urls')),
-    path('user/', include('joberon.apps.user.urls')),
-    path('job/', include('joberon.apps.job.urls')),
+    path('', include('joberia.apps.home.urls')),
+    path('alert/', include('joberia.apps.alert.urls')),
+    path('user/', include('joberia.apps.user.urls')),
+    path('job/', include('joberia.apps.job.urls')),
     path('admin/', admin.site.urls),
 ]
 
