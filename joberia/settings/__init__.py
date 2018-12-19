@@ -44,15 +44,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'rest_framework',
     'joberia.apps.core',
     'joberia.apps.user',
     'joberia.apps.company',
     'joberia.apps.job',
     'joberia.apps.application',
     'joberia.apps.alert',
-    'joberia.apps.spawner'
+    'joberia.apps.spawner',
+    'joberia.apps.home'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
