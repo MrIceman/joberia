@@ -2,73 +2,69 @@
 {% load static %}
 
 {% block main %}
-    <div class="container">
-        <div class="jumbotron d-flex flex-column justify-content-center align-items-lg-start"
-             style="background-color:#{{ theme.home_header_color }}; color:#ffffff">
-            <h1><b>Joberia.ai</b> - Creator of Job Platforms</h1>
-            <div>
-                <p class="lead">This is the row template that wil be used by Joberia. Goal is maximum customization with
-                    minimum effort.</p>
-            </div>
-            <hr class="my-4">
-            <div>
-                There are currently <span class="badge badge-secondary" style="background-color:#{{ theme.accent_color }}; color:#{{ theme.home_header_color }}">{{ jobs | length }} active job openings</span>
-                looking for <b>Machine Learning</b>
-                experts.<br/>
-            </div>
-            <a style="margin-top: 16px; background-color:#{{ theme.dark_accent_color }}; color: #fefefe;" class="btn align-self-center"
-               href="{% url 'job_list' %}"
-               role="button">Show Jobs</a>
+    <div class="jumbotron d-flex flex-column align-items-center justify-content-center"
+         style="background-color:#{{ theme.home_header_color }}; color:#ffffff">
+        <h1><b>Joberia<span style="color:#{{ theme.accent_color }}">.ai</span></b> - Creator of Job Platforms</h1>
+        <div>
+            <p class="lead">This is the row template that wil be used by Joberia. Goal is maximum customization with
+                minimum effort.</p>
+        </div>
+        <hr class="my-4">
+        <div>
+            There are currently <span style="color:#{{ theme.accent_color }}">{{ jobs | length }}</span> active job openings
+            looking for <b>Machine Learning</b>
+            experts.<br/>
+        </div>
+        <a style="margin-top: 16px; background-color:#{{ theme.dark_accent_color }}; color: #fefefe;"
+           class="btn align-self-center"
+           href="{% url 'job_list' %}"
+           role="button">Show Jobs</a>
+    </div>
+
+    <div class="jumbotron d-flex flex-column justify-content-start align-items-center"
+         style="background-color:#{{ theme.home_jobs_color }}">
+        <h3 class="display-5">Latest Jobs</h3>
+        <div class="d-flex flex-row justify-content-md-around-around flex-wrap align-items-center">
+            {% for job in jobs %}
+                <a href="{% url 'job_detail' job.id %}"
+                   style="text-decoration: none; color: #000000">
+                    <div class="card" style="width: 320px; height: 200px; margin: 8px">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-start">
+                                <span style="color:#{{ theme.dark_accent_color }}"><small><b>{{ job.organization.name }}</b></small></span>
+                                <h6 class="card-title" style="color: #{{ theme.accent_color }}">{{ job.title }}</h6>
+                            </div>
+                            <p class="card-text"
+                               style="color:#{{ theme.primary_dark_color }}">{{ job.short_description }}</p>
+                            <small>Online since <b>{{ job.idate }}</b></small>
+
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="container">
-        <div class="jumbotron d-flex flex-column justify-content-start align-items-start"
-             style="background-color:#{{ theme.home_jobs_color }}">
-            <h3 class="display-5">Latest 5 Jobs</h3>
-            <div class="d-flex flex-row justify-content-md-around-around flex-wrap align-items-center">
-                {% for job in jobs %}
-                    <a href="{% url 'job_detail' job.id %}"
-                       style="text-decoration: none; color: #000000">
-                        <div class="card" style="width: 320px; height: 200px; margin: 8px">
-                            <div class="card-body">
-                                <div class="d-flex flex-column align-items-start">
-                                    <span style="color:#{{ theme.dark_accent_color }}"><small><b>{{ job.organization.name }}</b></small></span>
-                                    <h6 class="card-title" style="color: #{{ theme.accent_color }}">{{ job.title }}</h6>
-                                </div>
-                                <p class="card-text" style="color:#{{ theme.primary_dark_color }}">{{ job.short_description }}</p>
-                                <small>Online since <b>{{ job.idate }}</b></small>
-
+    <div class="jumbotron d-flex flex-column justify-content-start align-items-center"
+         style="background-color:#{{ theme.home_dev_color }}">
+        <h3 class="display-5">Latest Developers</h3>
+        <div class="d-flex flex-row justify-content-md-around-around flex-wrap align-items-center">
+            {% for dev in devs %}
+                <a href="{% url 'job_detail' dev.id %}"
+                   style="text-decoration: none; color: #000000">
+                    <div class="card" style="width: 320px; height: 200px; margin: 8px">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-start">
+                                <small><b>{{ dev.organization.name }}</b></small>
+                                <h6 class="card-title" style="color: #e13b2b">{{ dev.title }}</h6>
                             </div>
-                        </div>
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+                            <p class="card-text">{{ dev.short_description }}</p>
+                            <small>Online since <b>{{ dev.idate }}</b></small>
 
-    <div class="container">
-        <div class="jumbotron d-flex flex-column justify-content-start align-items-start"
-             style="background-color:#{{ theme.home_dev_color }}">
-            <h3 class="display-5">Latest 5 Developers</h3>
-            <div class="d-flex flex-row justify-content-md-around-around flex-wrap align-items-center">
-                {% for dev in devs %}
-                    <a href="{% url 'job_detail' dev.id %}"
-                       style="text-decoration: none; color: #000000">
-                        <div class="card" style="width: 320px; height: 200px; margin: 8px">
-                            <div class="card-body">
-                                <div class="d-flex flex-column align-items-start">
-                                    <small><b>{{ dev.organization.name }}</b></small>
-                                    <h6 class="card-title" style="color: #e13b2b">{{ dev.title }}</h6>
-                                </div>
-                                <p class="card-text">{{ dev.short_description }}</p>
-                                <small>Online since <b>{{ dev.idate }}</b></small>
-
-                            </div>
                         </div>
-                    </a>
-                {% endfor %}
-            </div>
+                    </div>
+                </a>
+            {% endfor %}
         </div>
     </div>
 

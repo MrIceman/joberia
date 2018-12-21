@@ -1,14 +1,21 @@
-from django.shortcuts import render, redirect, reverse, HttpResponse
-from django.views.generic import FormView
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, reverse
 from django.utils import timezone
+from django.views.generic import FormView, View
 
-from .forms import LoginForm, RegisterForm
-from joberia.apps.core.utils import send_email_in_template
 from joberia.apps.core.models import create_default_hash
+from joberia.apps.core.utils import send_email_in_template
+from .forms import LoginForm, RegisterForm
 from .models import Profile
+
+
+class Logout(View):
+
+    def get(self, request):
+        logout(request)
+        return render(request, 'index.html')
 
 
 class Login(FormView):
