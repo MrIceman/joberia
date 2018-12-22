@@ -14,7 +14,7 @@
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
                 {{ login_form.as_p }}
-                <button class="btn btn-success">Sign in</button>
+                <button class="btn btn-success">Hello you! {{ theme.dark_accent_color }}</button>
             </form>
 
             <a href="{% url 'password_forgot' %}">Forgot password?</a>

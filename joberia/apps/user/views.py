@@ -7,6 +7,7 @@ from django.views.generic import FormView, View
 
 from joberia.apps.core.models import create_default_hash
 from joberia.apps.core.utils import send_email_in_template
+from joberia.apps.spawner.models import Theme
 from .forms import LoginForm, RegisterForm
 from .models import Profile
 
@@ -24,6 +25,12 @@ class Login(FormView):
             'login_form': LoginForm(), 'register_form': RegisterForm()
         })
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        theme = Theme.objects.filter().all().first()
+        context['theme'] = theme
+        return context
+
     def post(self, request, *args, **kwargs):
         login_form = LoginForm(request.POST or None)
 
@@ -36,7 +43,7 @@ class Login(FormView):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect(reverse('profile'))
+                    return redirect(reverse('index'))
                 else:
                     # user is not active, user should confirm his registration first
                     return render(request, 'sign.html', {
