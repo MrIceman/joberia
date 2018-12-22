@@ -31,22 +31,15 @@
     <![endif]-->
 </head>
 
-<body style="background-color:#{{ theme.background_color }};">
-<div class="d-flex flex-column">
-    <!-- Navigation -->
-    <div>
-        {% include 'includes/nav.html' %}
-    </div>
-    <div>
-        {% block main %}
+<body style="background-color:#{{ theme.background_color }}; min-height: 100vh;"
+      class="d-flex flex-column justify-content-between">
+<!-- Navigation -->
+{% include 'includes/nav.html' %}
+{% block main %}
 
-        {% endblock %}
-    </div>
-    <div>
-        {% include 'includes/footer.html' %}
-    </div>
+{% endblock %}
+{% include 'includes/footer.html' %}
 
-</div>
 
 <!-- Javascript -->
 <script src="{% static 'js/plugins/jquery.min.js' %}"></script>
