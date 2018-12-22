@@ -35,12 +35,16 @@
       class="d-flex flex-column justify-content-between">
 <!-- Navigation -->
 {% include 'includes/nav.html' %}
-{% block main %}
+<div class="container-fluid" style="flex-grow: 1;">
+    {% block main %}
 
-{% endblock %}
-{% include 'includes/footer.html' %}
-
-
+    {% endblock %}
+</div>
+{% if not disable_footer %}
+    <div class="container-fluid">
+        {% include 'includes/footer.html' %}
+    </div>
+{% endif %}
 <!-- Javascript -->
 <script src="{% static 'js/plugins/jquery.min.js' %}"></script>
 <script src="{% static 'js/plugins/popper.min.js' %}"></script>

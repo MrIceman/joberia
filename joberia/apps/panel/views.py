@@ -21,6 +21,8 @@ class PanelView(View):
         context = {}
         theme = Theme.objects.filter().all().first()
         context['theme'] = theme
+        theme.background_color = theme.primary_dark_color
         profile = Profile.objects.filter(user_id=self.user.id).first()
         context['profile'] = profile
+        context['disable_footer'] = True
         return context

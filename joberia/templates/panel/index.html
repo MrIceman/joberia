@@ -2,10 +2,37 @@
 {% load static %}
 
 {% block main %}
+    <div class="container d-flex flex-row justify-content-center align-items-center flex-wrap"
+         style="background-color:#{{ theme.primary_dark_color }}; padding: 8px; height: 100%">
+        <div class="col-lg-3 align-self-center" style="background-color:#{{ theme.primary_dark_color }};">
+            <!-- Menu -->
+            <div class="d-flex flex-column"
+                 style="color: #FFFFFF}; padding: 8px">
+                <div style="padding-top: 8px">
+                    <span style="color:#{{ theme.accent_dark_color }}">Joberia<span
+                            style="color:#{{ theme.accent_color }};">.ai</span> Panel</span>
+                </div>
+                <br/><br/>
+                <div>
+                    <span style="color: #FFFFFF">Menu</span><br/>
+                    <span>Profile</span> <br/>
+                    <span>Messages</span><br/>
+                    <span>Settings</span>
+                </div>
+                <div></div>
+            </div>
+        </div>
+        <div class="col-lg-9 align-self-center">
+            <div class="d-flex flex-column">
+                <h1 style="color: #{{ theme.accent_dark_color }}">Welcome, <b>{{ profile.user }}</b></h1> <br/>
 
-    <div>
-        <div class="col-12">
-            <h1>Hello {{ profile }}</h1>
+                <p style="color: #FFFFFF">
+                    In order to be more successful with your Job search, please fill in your profile!<br/>
+                    It's important that your future employer / client knows who he's dealing with.<br/>
+                    Feel free to enter as many details as you wish, however it's recommendable to include some past Work of yours.<br/>
+                    This could be for instance your GitHub Account or your Website with your portfolio,
+                </p>
+            </div>
         </div>
     </div>
 {% endblock %}
