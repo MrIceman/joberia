@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex flex-column align-items-center justify-content-center" style="padding: 8pxs">
+            {{ form.as_table }}
+            <input type="submit" value="Save">
+        </div>
+    </form>
+
+{% endblock %}
