@@ -2,16 +2,13 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from joberia.apps.user.views import (
-    Login, Register, ProfileView, confirm_register, PasswordForgot, PasswordReset, Logout
+    Login, Register, confirm_register, PasswordForgot, PasswordReset, Logout
 )
 
 urlpatterns = [
-    path('profile/', ProfileView.as_view(), name='profile'),
-
     path('login/', Login.as_view(), name='login'),
     path('logout/', Logout.as_view(), name='logout'),
     path('register/', Register.as_view(), name='register'),
-    path('register/confirm/<str:confirm_hash>/', confirm_register, name='confirm_register'),
 
     path('password_forgot/', PasswordForgot.as_view(), name='password_forgot'),
 

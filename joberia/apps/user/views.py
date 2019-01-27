@@ -1,6 +1,5 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, reverse
 from django.utils import timezone
 from django.views.generic import FormView, View
@@ -8,8 +7,8 @@ from django.views.generic import FormView, View
 from joberia.apps.core.models import create_default_hash
 from joberia.apps.core.utils import send_email_in_template
 from joberia.apps.spawner.models import Theme
+from joberia.apps.user.models import User
 from .forms import LoginForm, RegisterForm
-from .models import Profile
 
 
 class Logout(View):
@@ -21,7 +20,7 @@ class Logout(View):
 
 class Login(FormView):
     def get(self, request, *args, **kwargs):
-        return render(request, 'sign.html', {
+        return render(request, 'login.html', {
             'login_form': LoginForm(), 'register_form': RegisterForm()
         })
 
@@ -39,26 +38,45 @@ class Login(FormView):
             username = data.get('username')
             password = data.get('password')
 
+            if '@' in username:
+                user_model = get_user_model()
+                try:
+                    user = user_model.objects.get(email=username)
+                    if user is None:
+                        return render(request, 'login.html', {
+                            'login_form': login_form,
+                            'login_error': 'Email does not exist'
+                        })
+                    else:
+                        if user.check_password(password):
+                            login(request, user)
+                            return redirect(reverse('panel'))
+                except:
+                    return render(request, 'login.html', {
+                        'login_form': login_form,
+                        'login_error': 'Email {} does not exist in our database'.format(username)
+                    })
+
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect(reverse('index'))
+                    return redirect(reverse('panel'))
                 else:
                     # user is not active, user should confirm his registration first
-                    return render(request, 'sign.html', {
+                    return render(request, 'index.html', {
                         'login_form': login_form, 'register_form': RegisterForm(),
                         'login_error': 'Please confirm your registration.'
                     })
             else:
                 # bad credentials
-                return render(request, 'sign.html', {
+                return render(request, 'login.html', {
                     'login_form': login_form, 'register_form': RegisterForm(),
                     'login_error': 'Wrong credentials'
                 })
 
         # bad form data
-        return render(request, 'sign.html', {
+        return render(request, 'login.html', {
             'login_form': login_form, 'register_form': RegisterForm(),
             'login_error': 'Wrong credentials'
         })
@@ -66,8 +84,8 @@ class Login(FormView):
 
 class Register(FormView):
     def get(self, request, *args, **kwargs):
-        return render(request, 'sign.html', {
-            'login_form': LoginForm(), 'register_form': RegisterForm()
+        return render(request, 'register.html', {
+            'register_form': RegisterForm()
         })
 
     def post(self, request, *args, **kwargs):
@@ -77,30 +95,37 @@ class Register(FormView):
             email = form.cleaned_data.get('email')
             password1 = form.cleaned_data.get('password1')
             password2 = form.cleaned_data.get('password2')
+            role = form.cleaned_data.get('role')
 
             if password2 != password1:
-                return render(request, 'sign.html', {
-                    'login_form': LoginForm(),
+                return render(request, 'register.html', {
+                    'register_form': RegisterForm(),
                     'register_form': form,
                     'reg_error': 'Passwords don\'t match'
                 })
 
             if User.objects.filter(email=email).count():
-                return render(request, 'sign.html', {
+                return render(request, 'login.html', {
                     'login_form': LoginForm(),
                     'register_form': form,
                     'reg_error': 'User with this email exists already. Please sign in instead.'
                 })
 
-            new_user = User.objects.create(username=username, email=email, is_active=False)
+            new_user = User.objects.create(username=username, email=email, is_active=True, role=role)  # debug mode
             new_user.set_password(password2)
             new_user.save()
+            return redirect(request, 'login.html', {
+                'message': 'You have successfully signed up! Use your email address {email} or {username} to signup.'.format(
+                    email=email, username=username
+                )})
 
+
+"""
             # send confirmation link
             confirm_hash = create_default_hash()
 
-            new_user.profile.confirm_hash = confirm_hash
-            new_user.profile.save()
+            new_user.confirm_hash = confirm_hash
+            new_user.save()
 
             confirm_link = 'https://%s%s' % (
                 request.META.get('HTTP_HOST'),
@@ -108,7 +133,7 @@ class Register(FormView):
             )
 
             send_email_in_template(
-                'Your registration in joberon.com',
+                'Your registration in joberia.com',
                 email,
                 'email/template.html',
                 **{
@@ -118,18 +143,17 @@ class Register(FormView):
                     'link_name': 'Confirm'
                 }
             )
-
-            return redirect('%s?please_confirm=1' % reverse('login'))
+"""
 
 
 def confirm_register(request, confirm_hash):
-    user_profile = Profile.objects.filter(confirm_hash=confirm_hash).last()
+    user_profile = User.objects.filter(confirm_hash=confirm_hash).last()
 
     if not user_profile:
         # either hash is already used or invalid hash
         return redirect('%s?invalid_link=1' % reverse('login'))
 
-    user = user_profile.user
+    user = user_profile
 
     if user.is_active:
         return redirect('%s?already_confirmed=1' % reverse('profile'))
@@ -143,7 +167,7 @@ def confirm_register(request, confirm_hash):
     return redirect('%s?registration_complete=1' % reverse('profile'))
 
 
-class ProfileView(LoginRequiredMixin, FormView):
+class UserView(LoginRequiredMixin, FormView):
     login_url = '/user/login/'
     redirect_field_name = 'next'
 
@@ -171,8 +195,8 @@ class PasswordForgot(FormView):
         user = User.objects.filter(email=email).last()
 
         pw_onetime_hash = create_default_hash()
-        user.profile.pw_onetime_hash = pw_onetime_hash
-        user.profile.save()
+        user.pw_onetime_hash = pw_onetime_hash
+        user.save()
 
         send_email_in_template(
             'your new access',
@@ -195,7 +219,7 @@ class PasswordReset(FormView):
     def get(self, request, *args, **kwargs):
         onetime_hash = kwargs.get('onetime_hash')
 
-        user_profile = Profile.objects.filter(pw_onetime_hash=onetime_hash).last()
+        user_profile = User.objects.filter(pw_onetime_hash=onetime_hash).last()
         if not user_profile:
             error = 'link is invalid'
             return render(request, 'password_reset.html', {
@@ -218,7 +242,7 @@ class PasswordReset(FormView):
         password2 = request.POST.get('password2')
         user_profile_id = request.POST.get('user_profile_id')
 
-        if not Profile.objects.filter(id=user_profile_id).last():
+        if not User.objects.filter(id=user_profile_id).last():
             return render(request, 'password_reset.html', {
                 'error': 'error while resetting'
             })
@@ -228,7 +252,7 @@ class PasswordReset(FormView):
                 'error': 'passwords dont match'
             })
 
-        user_profile = Profile.objects.get(id=user_profile_id)
+        user_profile = User.objects.get(id=user_profile_id)
         user = user_profile.user
         user.set_password(password2)
         user.save()

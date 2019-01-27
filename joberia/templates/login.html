@@ -11,14 +11,17 @@
                 <p style="color: red"><b>{{ login_error }}</b></p>
             {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
+            <form method="post" action="{% url 'login' %}" class="d-flex flex-column">
                 {% csrf_token %}
                 {{ login_form.as_p }}
-                <button class="btn btn-success">Hello you! {{ theme.dark_accent_color }}</button>
+                <button class="btn btn-success align-self-center">Einloggen {{ theme.dark_accent_color }}</button>
             </form>
 
-            <a href="{% url 'password_forgot' %}">Forgot password?</a>
+            <a href="{% url 'password_forgot' %}" class="align-self-end">Forgot password?</a>
+                    <a href="{% url 'register' %}" class="align-self-center mt-4">Don't have an account yet?</a>
+
         </div>
+
     </div>
     </div>
 

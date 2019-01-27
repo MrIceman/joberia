@@ -3,8 +3,8 @@
 
 {% block main %}
     <div class="container d-flex flex-row justify-content-center align-items-center flex-wrap"
-         style="background-color:#{{ theme.primary_dark_color }}; padding: 8px; height: 100%">
-        <div class="col-lg-3 align-self-center" style="background-color:#{{ theme.primary_dark_color }};">
+         style="background-color:#{{ theme.primary_color }}; padding: 8px; height: 100%">
+        <div class="col-lg-3 align-self-center" style="background-color:#{{ theme.primary_color }};">
             <!-- Menu -->
             <div class="d-flex flex-column"
                  style="color: #FFFFFF}; padding: 8px">
@@ -12,7 +12,8 @@
                     <span style="color:#{{ theme.accent_color }}">Menu</span><br/>
                     <span>Profile</span> <br/>
                     <span>Messages</span><br/>
-                    <span>Settings</span>
+                    <span>Settings</span><br/><br/><br/>
+                    <span class="mt-5"><a href="{% url "logout" %}">Abmelden</a></span>
                 </div>
                 <div></div>
             </div>
@@ -21,10 +22,11 @@
             <div class="d-flex flex-column">
                 <h1 style="color: #FFFFFF">Welcome, <b>{{ profile.user }}</b></h1> <br/>
 
-                <p style="color:#{{ theme.accent_dark_color }}">
+                <p style="color:#{{ theme.accent_color_dark }}">
                     In order to be more successful with your Job search, please fill in your profile!<br/>
                     It's important that your future employer / client knows who he's dealing with.<br/>
-                    Feel free to enter as many details as you wish, however it's recommendable to include some past Work of yours.<br/>
+                    Feel free to enter as many details as you wish, however it's recommendable to include some past Work
+                    of yours.<br/>
                     This could be for instance your GitHub Account or your Website with your portfolio,
                 </p>
             </div>

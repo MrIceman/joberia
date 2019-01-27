@@ -1,11 +1,9 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.text import slugify
 
-from joberia.apps.company.models import Organization
 from joberia.apps.core.models import Base
-from joberia.apps.user.models import Tag
+from joberia.apps.user.models import Tag, User
 
 
 class DesiredProfileItem(Base):
@@ -50,14 +48,12 @@ class Job(Base):
     status = models.CharField(choices=STATUS, default='off', max_length=5)
     tags = models.ManyToManyField(Tag, related_name='job_tags', default=None)
     desired_profile = models.ManyToManyField(DesiredProfileItem, related_name='job_desired_profile_items', default=None)
-    offered_items = models.ManyToManyField(OfferedItem, related_name='job_offered_items', default=None)
+    offered_items = models.ManyToManyField(OfferedItem, related_name='job_offefred_items', default=None)
     bonuses = models.ManyToManyField(BonusEntry, related_name='job_bonuses', default=None)
 
     # set only if payment is done
     expires_at = models.DateTimeField(null=True)
 
-    # fks
-    organization = models.ForeignKey(Organization, related_name='org_jobs', on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name='created_jobs', on_delete=models.DO_NOTHING)
 
     picture = models.FileField(verbose_name='job_picture', default=None)

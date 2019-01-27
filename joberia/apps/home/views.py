@@ -1,8 +1,9 @@
 # Create your views here.
+from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
+from joberia.apps.core.utils import themed_view
 from joberia.apps.job.models import Job
-from joberia.apps.spawner.models import Theme
 
 
 class HomeView(ListView):
@@ -12,13 +13,13 @@ class HomeView(ListView):
     def get_queryset(self):
         return Job.objects.all()
 
+    @method_decorator(themed_view)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         jobs = Job.objects.filter(status='on').all().order_by('udate').reverse()[:5]
-        theme = Theme.objects.filter().all().first()
 
         context['jobs'] = jobs
-        context['theme'] = theme
+        context['theme'] = kwargs['theme']
 
         return context

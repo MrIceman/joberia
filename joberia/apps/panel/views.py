@@ -4,8 +4,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 
-from joberia.apps.spawner.models import Theme
-from joberia.apps.user.models import Profile
+from joberia.apps.core.utils import themed_view
 
 
 class PanelView(View):
@@ -17,12 +16,12 @@ class PanelView(View):
         context = self.get_context_data()
         return render(request, 'panel/index.html', context)
 
-    def get_context_data(self):
-        context = {}
-        theme = Theme.objects.filter().all().first()
-        context['theme'] = theme
-        theme.background_color = theme.primary_dark_color
-        profile = Profile.objects.filter(user_id=self.user.id).first()
+    @method_decorator(themed_view)
+    def get_context_data(self, **kwargs):
+        context = dict()
+        context['theme'] = kwargs['theme']
+        context['theme'].background_color = context['theme'].primary_color
+        profile = self.user
         context['profile'] = profile
         context['disable_footer'] = True
         return context

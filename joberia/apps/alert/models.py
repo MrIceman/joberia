@@ -1,10 +1,10 @@
 import json
 
-from django.contrib.auth.models import User
 from django.db import models
 
 from joberia.apps.company.models import Organization
 from joberia.apps.core.models import Base
+from joberia.apps.user.models import User
 
 
 class Alert(Base):
@@ -12,8 +12,8 @@ class Alert(Base):
         ('dev', 'Developer'),
         ('org', 'Organization')
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription', null=True, unique=True)
-    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null=True, unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription_user', null=True, unique=True)
+    organization = models.OneToOneField(Organization, related_name='subscription_org', on_delete=models.CASCADE, null=True, unique=True)
     type = models.CharField(choices=TYPE, default=TYPE[0], max_length=3)
     is_active = models.BooleanField(default=True)
 

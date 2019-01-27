@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 from joberia.apps.job.models import Job
 from joberia.apps.core.models import Base
+from joberia.apps.user.models import User
 
 
 class Application(Base):

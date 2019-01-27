@@ -1,5 +1,8 @@
 from django import forms
 
+from joberia.apps.user.models import User
+
+
 class RegisterForm(forms.Form):
     email = forms.CharField(
         max_length=100,
@@ -23,7 +26,7 @@ class RegisterForm(forms.Form):
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'password',
-            'maxlength': '150', 'minlength': '8'
+            'maxlength': '150', 'minlength': '4'
         }),
         label='Password'
     )
@@ -32,10 +35,13 @@ class RegisterForm(forms.Form):
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'repeat password',
-            'maxlength': '150', 'minlength': '8'
+            'maxlength': '150', 'minlength': '4'
         }),
         label='Repeat password'
     )
+
+    role = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=User.ROLES)
 
 
 class LoginForm(forms.Form):
