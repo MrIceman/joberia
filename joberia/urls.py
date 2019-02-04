@@ -10,6 +10,7 @@ urlpatterns = [
     path('job/', include('joberia.apps.job.urls')),
     path('panel/', include('joberia.apps.panel.urls')),
     path('admin/', admin.site.urls),
+    path('spawner/', include('joberia.apps.spawner.urls'))
 ]
 
 if settings.DEBUG:

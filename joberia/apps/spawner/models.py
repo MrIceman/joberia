@@ -1,9 +1,7 @@
 from django.db import models
 
-from joberia.apps.core.models import Base
 
-
-class Theme(Base):
+class Theme(models.Model):
     THEMES = (
         ('def', 'Default'),
         ('orn', 'Orange'),
@@ -41,10 +39,13 @@ class Theme(Base):
             return 'not found'
 
 
-class Platform(Base):
+class Platform(models.Model):
     platform_name = models.CharField(max_length=20)
     hash = models.CharField(max_length=100, default='')
     home_text_header = models.TextField(default='')
+    home_text_sub_header = models.TextField(default='')
     home_text_body = models.TextField(default='')
-    footer_about_text = models.TextField(default='')
-    theme = models.ForeignKey(Theme, related_name='platform_theme', on_delete=models.DO_NOTHING)
+    description = models.TextField(default='')
+    footer_text = models.TextField(default='')
+    is_active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)

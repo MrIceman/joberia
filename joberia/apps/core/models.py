@@ -1,7 +1,9 @@
-import os
 import codecs
+import os
 
 from django.db import models
+
+from joberia.apps.spawner.models import Platform
 
 
 def create_default_hash(length=8):
@@ -16,6 +18,7 @@ class Base(models.Model):
     )
     idate = models.DateTimeField(auto_now_add=True, verbose_name='created at')
     udate = models.DateTimeField(auto_now=True, verbose_name='changed at')
+    platform_id = models.ForeignKey(to=Platform, verbose_name='platform', on_delete=models.DO_NOTHING)
 
     class Meta:
         abstract = True

@@ -61,6 +61,9 @@ class Job(Base):
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ('udate', )
+
     def get_absolute_url(self):
         return reverse('job_detail', kwargs={
             'job_hash': self.hash_id, 'slug': slugify(self.title)

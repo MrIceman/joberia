@@ -1,6 +1,6 @@
-import json
+"""import json
 
-from django.contrib.auth.models import User
+from joberia.apps.user.models import User
 from django.test import TestCase, RequestFactory
 from joberia.apps.alert.models import Alert
 from joberia.apps.alert.views import DeveloperAlerts
@@ -72,3 +72,4 @@ class DevAlertTestCase(TestCase):
             'type': 'dev',
             'active': True
         })
+"""""
