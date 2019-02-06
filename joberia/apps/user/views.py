@@ -1,14 +1,21 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
+import json
+
+from django.contrib.auth import login, logout
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.utils import timezone
 from django.views.generic import FormView, View
+from rest_framework.parsers import JSONParser
 
+from joberia.apps.common.hasher import hash_sha256
+from joberia.apps.common.jwt import encode_jwt_token
+from joberia.apps.common.responses import register_failed_message, create_auth_invalid_response, \
+    create_user_does_not_exist_response, create_password_is_wrong_response, \
+    create_platform_does_not_exist_response
 from joberia.apps.core.models import create_default_hash
 from joberia.apps.core.utils import send_email_in_template
-from joberia.apps.spawner.models import Theme
 from joberia.apps.user.models import User
-from .forms import LoginForm, RegisterForm
+from joberia.apps.user.serializers import AuthUserSerializer
 
 
 class Logout(View):
@@ -18,167 +25,52 @@ class Logout(View):
         return render(request, 'index.html')
 
 
-class Login(FormView):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'login.html', {
-            'login_form': LoginForm(), 'register_form': RegisterForm()
-        })
+class Login(View):
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        theme = Theme.objects.filter().all().first()
-        context['theme'] = theme
-        return context
+    def post(self, request):
+        try:
+            data = json.loads(str(request.body, encoding='utf-8'))
+            user = User.objects.filter(username=data['username']).first()
 
-    def post(self, request, *args, **kwargs):
-        login_form = LoginForm(request.POST or None)
-
-        if login_form.is_valid():
-            data = login_form.cleaned_data
-            username = data.get('username')
-            password = data.get('password')
-
-            if '@' in username:
-                user_model = get_user_model()
-                try:
-                    user = user_model.objects.get(email=username)
-                    if user is None:
-                        return render(request, 'login.html', {
-                            'login_form': login_form,
-                            'login_error': 'Email does not exist'
-                        })
-                    else:
-                        if user.check_password(password):
-                            login(request, user)
-                            return redirect(reverse('panel'))
-                except:
-                    return render(request, 'login.html', {
-                        'login_form': login_form,
-                        'login_error': 'Email {} does not exist in our database'.format(username)
-                    })
-
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect(reverse('panel'))
-                else:
-                    # user is not active, user should confirm his registration first
-                    return render(request, 'index.html', {
-                        'login_form': login_form, 'register_form': RegisterForm(),
-                        'login_error': 'Please confirm your registration.'
-                    })
-            else:
-                # bad credentials
-                return render(request, 'login.html', {
-                    'login_form': login_form, 'register_form': RegisterForm(),
-                    'login_error': 'Wrong credentials'
-                })
-
-        # bad form data
-        return render(request, 'login.html', {
-            'login_form': login_form, 'register_form': RegisterForm(),
-            'login_error': 'Wrong credentials'
-        })
+            if user is None:
+                return JsonResponse(create_user_does_not_exist_response())
+            hashed_password = hash_sha256(data['password'])
+            if str(user.password) != str(hashed_password):
+                return JsonResponse(create_password_is_wrong_response())
+            if int(data['platform']) != user.platform.id:
+                return JsonResponse(create_platform_does_not_exist_response())
+            token = encode_jwt_token(user.username, user.password, user.platform.id)
+            return JsonResponse({'token': str(token, encoding='utf-8')})
+        except Exception as e:
+            return JsonResponse(create_auth_invalid_response('Login Failed. Reason: {}'.format(str(e))))
 
 
-class Register(FormView):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'register.html', {
-            'register_form': RegisterForm()
-        })
+class Register(View):
 
-    def post(self, request, *args, **kwargs):
-        form = RegisterForm(request.POST or None)
-        if form.is_valid():
-            username = form.cleaned_data.get('new_username')
-            email = form.cleaned_data.get('email')
-            password1 = form.cleaned_data.get('password1')
-            password2 = form.cleaned_data.get('password2')
-            role = form.cleaned_data.get('role')
+    def post(self, request):
+        data = JSONParser().parse(request)
+        serializer = AuthUserSerializer(data=data)
 
-            if password2 != password1:
-                return render(request, 'register.html', {
-                    'register_form': RegisterForm(),
-                    'register_form': form,
-                    'reg_error': 'Passwords don\'t match'
-                })
+        if serializer.is_valid():
+            instance = serializer.save()
+            instance.disabled = True
+            instance.password = hash_sha256(instance.password)
+            instance.confirm_hash = 'watskeburt'
+            instance.save()
+            token = encode_jwt_token(instance.username, instance.password, instance.platform.id)
+            response = serializer.data
 
-            if User.objects.filter(email=email).count():
-                return render(request, 'login.html', {
-                    'login_form': LoginForm(),
-                    'register_form': form,
-                    'reg_error': 'User with this email exists already. Please sign in instead.'
-                })
-
-            new_user = User.objects.create(username=username, email=email, is_active=True, role=role)  # debug mode
-            new_user.set_password(password2)
-            new_user.save()
-            return redirect(request, 'login.html', {
-                'message': 'You have successfully signed up! Use your email address {email} or {username} to signup.'.format(
-                    email=email, username=username
-                )})
-
-
-"""
-            # send confirmation link
-            confirm_hash = create_default_hash()
-
-            new_user.confirm_hash = confirm_hash
-            new_user.save()
-
-            confirm_link = 'https://%s%s' % (
-                request.META.get('HTTP_HOST'),
-                reverse('confirm_register', kwargs={'confirm_hash': confirm_hash})
-            )
-
-            send_email_in_template(
-                'Your registration in joberia.com',
-                email,
-                'email/template.html',
-                **{
-                    'text': "Thanks for registering on joberon.com. Please confirm your registration by clicking on "
-                            "the link below.",
-                    'link': confirm_link,
-                    'link_name': 'Confirm'
-                }
-            )
-"""
+            response.update({'jwt': str(token, encoding='utf-8')})
+            return JsonResponse(response)
+        else:
+            return JsonResponse(register_failed_message(serializer.errors))
 
 
 def confirm_register(request, confirm_hash):
-    user_profile = User.objects.filter(confirm_hash=confirm_hash).last()
-
-    if not user_profile:
-        # either hash is already used or invalid hash
-        return redirect('%s?invalid_link=1' % reverse('login'))
-
-    user = user_profile
-
-    if user.is_active:
-        return redirect('%s?already_confirmed=1' % reverse('profile'))
-
-    user.is_active = True
-    user.save(update_fields=['is_active'])
-
-    # login user
-    login(request, user)
-
-    return redirect('%s?registration_complete=1' % reverse('profile'))
-
-
-class UserView(LoginRequiredMixin, FormView):
-    login_url = '/user/login/'
-    redirect_field_name = 'next'
-
-    def get(self, request, *args, **kwargs):
-        return render(request, 'profile.html')
+    pass
 
 
 class PasswordForgot(FormView):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'request_password_reset.html')
-
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email')
 
