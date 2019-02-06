@@ -3,9 +3,9 @@ from django.http import JsonResponse
 from django.views import View
 from rest_framework.parsers import JSONParser
 
+from joberia.apps.common.hasher import hash_sha256
+from joberia.apps.common.responses import create_data_does_not_exist_response
 from joberia.apps.spawner.models import Platform
-from joberia.apps.utils.hasher import hash_sha256
-from joberia.apps.utils.responses import create_data_does_not_exist_error
 from .serializers import PlatformSerializer
 
 
@@ -29,7 +29,7 @@ class CreatePlatform(View):
         if platform_id:
             platform = Platform.objects.filter(pk=platform_id).first()
             if platform is None:
-                return JsonResponse(create_data_does_not_exist_error())
+                return JsonResponse(create_data_does_not_exist_response())
             serializer = PlatformSerializer(platform)
             return JsonResponse(serializer.data)
         else:

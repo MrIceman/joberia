@@ -3,11 +3,11 @@ import unittest
 
 from django.test import Client
 
+from joberia.apps.common.responses import create_data_does_not_exist_response
 from joberia.apps.spawner.models import Platform
-from joberia.apps.utils.responses import create_data_does_not_exist_error
 
 
-class CreatePlatformTest(unittest.TestCase):
+class PlatformViewTest(unittest.TestCase):
 
     def setUp(self):
         self.client = Client()
@@ -42,11 +42,11 @@ class CreatePlatformTest(unittest.TestCase):
 
         obj = json.loads(str(response.content, encoding='utf-8'))
 
-        self.assertEqual(obj, create_data_does_not_exist_error())
+        self.assertEqual(obj, create_data_does_not_exist_response())
 
     def test_returns_array_of_items_when_no_id_attached(self):
         response = self.client.get('/spawner/platform/')
 
         obj = json.loads(str(response.content, encoding='utf-8'))
 
-        print(obj)
+        self.assertEqual(len(obj), 1)
