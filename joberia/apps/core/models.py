@@ -18,7 +18,7 @@ class Base(models.Model):
     )
     idate = models.DateTimeField(auto_now_add=True, verbose_name='created at')
     udate = models.DateTimeField(auto_now=True, verbose_name='changed at')
-    platform_id = models.ForeignKey(to=Platform, verbose_name='platform', on_delete=models.DO_NOTHING)
+    platform = models.ForeignKey(to=Platform, verbose_name='platform', on_delete=models.DO_NOTHING)
 
     class Meta:
         abstract = True
