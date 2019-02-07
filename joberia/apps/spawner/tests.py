@@ -48,5 +48,4 @@ class PlatformViewTest(unittest.TestCase):
         response = self.client.get('/spawner/platform/')
 
         obj = json.loads(str(response.content, encoding='utf-8'))
-
         self.assertEqual(len(obj), 1)

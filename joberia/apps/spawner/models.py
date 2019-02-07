@@ -49,3 +49,6 @@ class Platform(models.Model):
     footer_text = models.TextField(default='')
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{} / {}'.format(self.pk, self.platform_name)
