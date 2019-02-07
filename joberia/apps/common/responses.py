@@ -28,6 +28,10 @@ def register_failed_message(message=None):
     return __template_error_response('Failed to create Account. {}'.format(message))
 
 
+def create_failed_message(message=None):
+    return __template_error_response('Creation Failed' if not message else message)
+
+
 def __template_error_response(message):
     return {'error': {'message': message}}
 
