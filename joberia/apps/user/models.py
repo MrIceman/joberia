@@ -23,13 +23,4 @@ class Bio(Base):
     user = models.ForeignKey(User, related_name='user_bios', on_delete=models.CASCADE)
 
 
-class Tag(Base):
-    TYPES = (
-        ('loc', 'Location'),
-        ('skill', 'Skill'),
-    )
-    type = models.CharField(choices=TYPES, default='skill', db_index=True, max_length=10)
-    name = models.CharField(max_length=100, unique=True)
 
-    def __str__(self):
-        return self.name

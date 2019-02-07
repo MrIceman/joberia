@@ -3,7 +3,11 @@ from django.shortcuts import reverse
 from django.utils.text import slugify
 
 from joberia.apps.core.models import Base
-from joberia.apps.user.models import Tag, User
+from joberia.apps.user.models import User
+
+
+def __str__(self):
+    return self.name
 
 
 class DesiredProfileItem(Base):
@@ -22,21 +26,6 @@ class OfferedItem(Base):
         return self.label
 
 
-class Bonus(Base):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-class BonusEntry(Base):
-    bonus = models.OneToOneField(Bonus, related_name='entries', on_delete=models.CASCADE)
-    entry = models.CharField(max_length=100, db_index=True)
-
-    def __str__(self):
-        return self.bonus.name
-
-
 class Job(Base):
     STATUS = (
         ('off', 'Offline'),
@@ -46,10 +35,8 @@ class Job(Base):
     description = models.TextField()
     short_description = models.TextField(default='')
     status = models.CharField(choices=STATUS, default='off', max_length=5)
-    tags = models.ManyToManyField(Tag, related_name='job_tags', default=None)
     desired_profile = models.ManyToManyField(DesiredProfileItem, related_name='job_desired_profile_items', default=None)
     offered_items = models.ManyToManyField(OfferedItem, related_name='job_offefred_items', default=None)
-    bonuses = models.ManyToManyField(BonusEntry, related_name='job_bonuses', default=None)
 
     # set only if payment is done
     expires_at = models.DateTimeField(null=True)
@@ -62,7 +49,7 @@ class Job(Base):
         return self.title
 
     class Meta:
-        ordering = ('udate', )
+        ordering = ('udate',)
 
     def get_absolute_url(self):
         return reverse('job_detail', kwargs={
@@ -70,14 +57,35 @@ class Job(Base):
         })
 
 
+class Bonus(Base):
+    name = models.CharField(max_length=50)
+    value = models.CharField(max_length=50, default='')
+    job_id = models.ForeignKey(to=Job, related_name='bonuses', null=True, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.name
+
+
 class Comment(Base):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_user_comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     reply = models.OneToOneField('self', on_delete=models.CASCADE, related_name='comment_replies', null=True,
                                  blank=True)
-    job = models.ForeignKey(Job, on_delete=models.DO_NOTHING, related_name='job_comments', default=None,
+    job = models.ForeignKey(Job, on_delete=models.DO_NOTHING, related_name='comments', default=None,
                             unique=False)
     is_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.author.username + " - " + self.job.title + " - " + self.idate.__str__()
+
+
+class Tag(Base):
+    TYPES = (
+        ('loc', 'Location'),
+        ('skill', 'Skill'),
+        ('other', 'Other')
+    )
+    type = models.CharField(choices=TYPES, default='skill', db_index=True, max_length=10)
+    name = models.CharField(max_length=100, unique=True)
+    job = models.ForeignKey(to=Job, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(to=User, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING)

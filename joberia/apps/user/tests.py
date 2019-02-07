@@ -32,12 +32,18 @@ class LoginUserViewTest(unittest.TestCase):
         create_default_platform(self.client)
         create_default_user(self.client, 'mrtn', 'mrtnnwsd@gmail.com', password='hello')
 
-    def test_auth_fails_with_wrong_data(self):
+    def test_auth_suceeds(self):
         data = {
             'username': 'mrtn',
             'password': 'hello',
             'platform': '1'
         }
+        result_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiJtcnRuIiwicGFzc3dvcmRfaGFzaCI6IjJjZjI0ZGJhNWZiMGEzMGUyNmU4M2IyYWM1YjllMjllMWIxNjFlNWMxZmE3NDI1ZTczMDQzMzYyOTM4Yjk4MjQiLCJwbGF0Zm9ybV9pZCI6MX0.6QVF5Rb_nTpZKk9EIcsRPB2IaKGq1hSPjGfNnYHB7NE'
+
         response = self.client.post(path=self.path, data=json.dumps(data), content_type='application/json')
 
-        print(json.loads(str(response.content, encoding='utf-8')))
+        result = json.loads(str(response.content, encoding='utf-8'))
+
+        self.assertEqual(result['token'], result_token)
+
+

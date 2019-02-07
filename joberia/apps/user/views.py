@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
@@ -55,7 +56,7 @@ class Register(View):
             instance = serializer.save()
             instance.disabled = True
             instance.password = hash_sha256(instance.password)
-            instance.confirm_hash = 'watskeburt'
+            instance.confirm_hash = hash_sha256(str(time.time()))
             instance.save()
             token = encode_jwt_token(instance.username, instance.password, instance.platform.id)
             response = serializer.data

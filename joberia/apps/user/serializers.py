@@ -8,3 +8,10 @@ class AuthUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'username', 'email', 'role', 'first_name', 'last_name', 'platform', 'password')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'role', 'first_name', 'last_name')
