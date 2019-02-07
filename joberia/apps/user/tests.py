@@ -38,7 +38,7 @@ class LoginUserViewTest(unittest.TestCase):
             'password': 'hello',
             'platform': '1'
         }
-        result_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiJtcnRuIiwicGFzc3dvcmRfaGFzaCI6IjJjZjI0ZGJhNWZiMGEzMGUyNmU4M2IyYWM1YjllMjllMWIxNjFlNWMxZmE3NDI1ZTczMDQzMzYyOTM4Yjk4MjQiLCJwbGF0Zm9ybV9pZCI6MX0.6QVF5Rb_nTpZKk9EIcsRPB2IaKGq1hSPjGfNnYHB7NE'
+        result_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJwYXNzd29yZF9oYXNoIjoiMmNmMjRkYmE1ZmIwYTMwZTI2ZTgzYjJhYzViOWUyOWUxYjE2MWU1YzFmYTc0MjVlNzMwNDMzNjI5MzhiOTgyNCIsInBsYXRmb3JtX2lkIjoxfQ.DWwfIdkPy34nrOY6joejjD_AoaJRqtaiOYA1qJNMTHU'
 
         response = self.client.post(path=self.path, data=json.dumps(data), content_type='application/json')
 

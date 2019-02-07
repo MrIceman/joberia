@@ -2,7 +2,7 @@ import os
 
 import jwt
 
-USER_ID = 'userid'
+USER_ID = 'user_id'
 PW_HASH = 'password_hash'
 PLATFORM_ID = 'platform_id'
 

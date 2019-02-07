@@ -40,7 +40,7 @@ class Login(View):
                 return JsonResponse(create_password_is_wrong_response())
             if int(data['platform']) != user.platform.id:
                 return JsonResponse(create_platform_does_not_exist_response())
-            token = encode_jwt_token(user.username, user.password, user.platform.id)
+            token = encode_jwt_token(user.pk, user.password, user.platform.id)
             return JsonResponse({'token': str(token, encoding='utf-8')})
         except Exception as e:
             return JsonResponse(create_auth_invalid_response('Login Failed. Reason: {}'.format(str(e))))

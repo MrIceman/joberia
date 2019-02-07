@@ -17,19 +17,20 @@ def jwt_required(func):
             payload = decode_jwt_token(data[1])
             user_id, pw_hash, platform = payload[USER_ID], payload[PW_HASH], payload[PLATFORM_ID]
 
-            user = User.objects.filter(pk=user_id)
+            user = User.objects.filter(pk=user_id).first()
 
             if user is None:
                 return JsonResponse(create_auth_invalid_response('User does not exist.'))
             if user.password != pw_hash:
                 return JsonResponse(create_auth_invalid_response('Password is invalid'))
-            if user.platform.id != platform:
+            if user.platform.pk != platform:
                 return JsonResponse(create_auth_invalid_response('User does not exist on that Platform'))
 
-            kwargs.update({REQUEST_KEY_PLATFORM: platform, REQUEST_KEY_USER: user_id})
+            kwargs.update({REQUEST_KEY_PLATFORM: user.platform, REQUEST_KEY_USER: user})
             return func(request, *args, **kwargs)
         except Exception as e:
-            return JsonResponse(create_auth_invalid_response('Authentication token is missing or malformed.'))
+            return JsonResponse(
+                create_auth_invalid_response('Authentication token is missing or malformed. {}'.format(str(e))))
         pass
 
     return auth
