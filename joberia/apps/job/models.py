@@ -26,7 +26,7 @@ class Job(Base):
     # set only if payment is done
     expires_at = models.DateTimeField(default=datetime.now() + timedelta(days=30))
 
-    created_by = models.ForeignKey(User, related_name='created_jobs', on_delete=models.DO_NOTHING)
+    created_by = models.ForeignKey(User, related_name='created_jobs', on_delete=models.CASCADE, null=True)
     picture = models.ImageField(upload_to='job_images', verbose_name='job_picture', default=None)
 
     def __str__(self):
@@ -43,7 +43,7 @@ class Job(Base):
 
 class DesiredProfileItem(Base):
     name = models.CharField(max_length=150, db_index=True)
-    used_in_job = models.ForeignKey(to=Job, related_name='desired_profile', on_delete=models.CASCADE)
+    job = models.ForeignKey(to=Job, related_name='desired_profile', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -51,7 +51,7 @@ class DesiredProfileItem(Base):
 
 class OfferedItem(Base):
     label = models.CharField(max_length=150, db_index=True)
-    used_in_job = models.ForeignKey(to=Job, related_name='offers', on_delete=models.CASCADE)
+    job = models.ForeignKey(to=Job, related_name='offers', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.label
@@ -60,7 +60,7 @@ class OfferedItem(Base):
 class Bonus(Base):
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=50, default='')
-    used_in_job = models.ForeignKey(to=Job, related_name='bonuses', null=True, on_delete=models.CASCADE)
+    job = models.ForeignKey(to=Job, related_name='bonuses', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -70,8 +70,10 @@ class Comment(Base):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     reply = models.OneToOneField('self', on_delete=models.CASCADE, related_name='comment_replies', null=True,
-                                 blank=True)
-    used_in_job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='comments', default=None,
+                                 blank=True
+                                 )
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='comments', null=True,
+                            default=None,
                             unique=False)
     is_confirmed = models.BooleanField(default=False)
 
@@ -87,9 +89,9 @@ class Tag(Base):
     )
     type = models.CharField(choices=TYPES, default='skill', db_index=True, max_length=10)
     name = models.CharField(max_length=100, unique=True)
-    used_in_job = models.ForeignKey(to=Job, related_name='tags', null=True, blank=True, on_delete=models.CASCADE,
+    job = models.ForeignKey(to=Job, related_name='tags', null=True, on_delete=models.CASCADE,
                             unique=False)
-    user = models.ForeignKey(to=User, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING,
+    user = models.ForeignKey(to=User, related_name='tags', null=True, on_delete=models.CASCADE,
                              unique=False)
 
     def __str__(self):

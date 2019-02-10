@@ -7,26 +7,36 @@ from joberia.apps.common import REQUEST_KEY_USER, REQUEST_KEY_PLATFORM
 from joberia.apps.common.auth import jwt_required
 from joberia.apps.common.responses import create_failed_message, create_data_does_not_exist_response, \
     create_not_authorized_response, create_action_successful_response
-from joberia.apps.job.models import OfferedItem, Job, Bonus, Tag, DesiredProfileItem
-from joberia.apps.job.serializers import JobSerializer
+from joberia.apps.job.models import OfferedItem, Job, Bonus, Tag, DesiredProfileItem, Comment
+from joberia.apps.job.serializers import JobSerializer, CommentSerializer
 
 
 class JobView(View):
-    """
-        data = {
-            'title': 'Joberia AI Engineer',
-            'created_by': '1',
-            'description': 'Hello',
-            'short_description': 'asdfaf',
-            'desired_profile': ['4 years experience', 'aws', 'docker skills', 'self reliant'],
-            'offers': ['home office', 'high salary', 'budget', 'vacations'],
-            'bonuses': ['13 salary'],
-            'location_tags': ['munich'],
-            'skill_tags': ['postgres', 'docker', 'nodejs', 'react'],
-            'expires_at': time.time(),
-        }
+    @method_decorator(jwt_required)
+    def put(self, request, *args, **kwargs):
+        try:
+            user = kwargs[REQUEST_KEY_USER]
+            platform = kwargs[REQUEST_KEY_PLATFORM]
+            data = JSONParser().parse(request)
 
-        """
+            job_id = data['id']
+
+            del data['id']
+            if user and job_id is not None:
+                job = Job.objects.filter(pk=job_id, platform=platform.pk).first()
+                if job is None:
+                    return JsonResponse(create_data_does_not_exist_response())
+                if job.created_by.pk != user.pk:
+                    return JsonResponse(create_not_authorized_response())
+                else:
+                    serializer = JobSerializer(job, data=data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return JsonResponse(serializer.data)
+                    else:
+                        return JsonResponse(create_failed_message(serializer.errors))
+        except Exception as e:
+            return JsonResponse(create_failed_message(str(e)))
 
     @method_decorator(jwt_required)
     def delete(self, request, *args, **kwargs):
@@ -34,10 +44,6 @@ class JobView(View):
             user = kwargs[REQUEST_KEY_USER]
             platform = kwargs[REQUEST_KEY_PLATFORM]
             job_id = request.GET.get('id')
-
-            jobs = Job.objects.all()
-
-            serializer = JobSerializer(instance=jobs, many=True)
 
             if user and job_id is not None:
                 job = Job.objects.filter(pk=job_id, platform=platform.pk).first()
@@ -82,18 +88,53 @@ class JobView(View):
             job.save()
 
             for o in offers:
-                OfferedItem(label=o, used_in_job=job, platform_id=platform.pk).save()
+                OfferedItem(label=o, job=job, platform_id=platform.pk).save()
             for k, v in bonuses:
-                Bonus(name=k, value=v, used_in_job=job, platform_id=platform.pk).save()
+                Bonus(name=k, value=v, job=job, platform_id=platform.pk).save()
             for skill in skill_tags:
-                Tag(type='skill', name=skill, used_in_job=job, platform_id=platform.pk).save()
+                Tag(type='skill', name=skill, job=job, platform_id=platform.pk).save()
             for loca in location_tags:
-                Tag(type='loc', name=loca, used_in_job=job, platform_id=platform.pk).save()
+                Tag(type='loc', name=loca, job=job, platform_id=platform.pk).save()
             for dp in desired_profile:
-                DesiredProfileItem(name=dp, used_in_job=job, platform_id=platform.pk).save()
+                DesiredProfileItem(name=dp, job=job, platform_id=platform.pk).save()
             serializer = JobSerializer(instance=job)
 
             return JsonResponse(serializer.data)
 
         except Exception as e:
             return JsonResponse(create_failed_message(str(e)))
+
+
+class CommentView(View):
+
+    @method_decorator(jwt_required)
+    def post(self, request, job_id, *args, **kwargs):
+        job = Job.objects.filter(pk=job_id).first()
+        user = kwargs.get(REQUEST_KEY_USER)
+        platform = kwargs.get(REQUEST_KEY_PLATFORM)
+        if job is None:
+            return JsonResponse(create_data_does_not_exist_response())
+        comment_data = JSONParser().parse(request)
+        comment_data.update({'platform': platform.pk})
+        comment_data.update({'author': user.pk})
+        serializer = CommentSerializer(data=comment_data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            instance.platform = platform
+            instance.save()
+            return JsonResponse(serializer.data)
+        else:
+            return JsonResponse(create_failed_message(serializer.errors))
+
+    @method_decorator(jwt_required)
+    def put(self, request, *args, **kwargs):
+        comment_data = JSONParser().parse(request)
+        comment = Comment.objects.filter(pk=comment_data['id'], job=comment_data['job'],
+                                         platform=kwargs.get(REQUEST_KEY_PLATFORM),
+                                         author=kwargs.get(REQUEST_KEY_USER)).first()
+        serializer = CommentSerializer(instance=comment, data=comment_data, partial=True)
+        if serializer.is_valid():
+            instance = serializer.save()
+            return JsonResponse(serializer.data)
+        else:
+            return JsonResponse(create_failed_message(serializer.errors))

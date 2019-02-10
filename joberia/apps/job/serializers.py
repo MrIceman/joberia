@@ -11,9 +11,8 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class GetCommentSerializer(serializers.ModelSerializer):
     author = UserSerializer()
-    comment_replies = RecursiveField(many=True)
 
     class Meta:
         model = Comment
@@ -21,7 +20,20 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'author',
             'text',
-            'comment_replies'
+            'job',
+            'platform_id'
+        )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'author',
+            'text',
+            'job',
+            'platform'
         )
 
 
@@ -50,7 +62,7 @@ class DesiredProfileSerializer(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
-    comments = CommentSerializer(many=True)
+    comments = GetCommentSerializer(many=True)
     bonuses = BonusSerializer(many=True)
     offers = serializers.ListSerializer(child=serializers.CharField())
     location_tags = SerializerMethodField()
