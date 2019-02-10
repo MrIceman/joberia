@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import CreateJobView
+from .views import JobView
 
 urlpatterns = [
-    path('create/', CreateJobView.as_view(), name='create_job'),
+    path('', JobView.as_view(), name='job_view'),
 
 ]

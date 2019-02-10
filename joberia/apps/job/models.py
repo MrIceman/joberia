@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 
 from django.db import models
 from django.shortcuts import reverse
@@ -43,7 +43,7 @@ class Job(Base):
 
 class DesiredProfileItem(Base):
     name = models.CharField(max_length=150, db_index=True)
-    job = models.ForeignKey(to=Job, related_name='desired_profile', on_delete=models.DO_NOTHING)
+    used_in_job = models.ForeignKey(to=Job, related_name='desired_profile', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -51,7 +51,7 @@ class DesiredProfileItem(Base):
 
 class OfferedItem(Base):
     label = models.CharField(max_length=150, db_index=True)
-    job = models.ForeignKey(to=Job, related_name='offers', on_delete=models.DO_NOTHING)
+    used_in_job = models.ForeignKey(to=Job, related_name='offers', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.label
@@ -60,7 +60,7 @@ class OfferedItem(Base):
 class Bonus(Base):
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=50, default='')
-    job = models.ForeignKey(to=Job, related_name='bonuses', null=True, on_delete=models.DO_NOTHING)
+    used_in_job = models.ForeignKey(to=Job, related_name='bonuses', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -71,7 +71,7 @@ class Comment(Base):
     text = models.TextField()
     reply = models.OneToOneField('self', on_delete=models.CASCADE, related_name='comment_replies', null=True,
                                  blank=True)
-    job = models.ForeignKey(Job, on_delete=models.DO_NOTHING, related_name='comments', default=None,
+    used_in_job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='comments', default=None,
                             unique=False)
     is_confirmed = models.BooleanField(default=False)
 
@@ -87,8 +87,10 @@ class Tag(Base):
     )
     type = models.CharField(choices=TYPES, default='skill', db_index=True, max_length=10)
     name = models.CharField(max_length=100, unique=True)
-    job = models.ForeignKey(to=Job, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(to=User, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING)
+    used_in_job = models.ForeignKey(to=Job, related_name='tags', null=True, blank=True, on_delete=models.CASCADE,
+                            unique=False)
+    user = models.ForeignKey(to=User, related_name='tags', null=True, blank=True, on_delete=models.DO_NOTHING,
+                             unique=False)
 
     def __str__(self):
         return self.name

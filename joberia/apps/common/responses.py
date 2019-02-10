@@ -20,8 +20,16 @@ def create_auth_invalid_response(message=None):
     return __template_error_response(message)
 
 
+def create_not_authorized_response():
+    return __template_error_response('Not authorized to perform action.')
+
+
 def create_login_successful_response():
     return __template_success_response('Logged in.')
+
+
+def create_action_successful_response(message):
+    return __template_success_response(message)
 
 
 def register_failed_message(message=None):

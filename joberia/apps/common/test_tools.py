@@ -39,5 +39,27 @@ def create_default_user(client, username='django', email='django@gmail.com', pas
     return response
 
 
+def create_default_job(client):
+    path = '/job/'
+    data = {
+        'title': 'Joberia AI Engineer',
+        'created_by': '1',
+        'description': 'Hello',
+        'short_description': 'asdfaf',
+        'desired_profile': ['self reliant', 'docker skills', 'aws', '4 years experience'],
+        'offers': ['home office', 'high salary', 'budget', 'vacations'],
+        'bonuses': [{'salary': '13', 'pets allowed': True}],
+        'location_tags': ['munich'],
+        'skill_tags': ['postgres', 'docker', 'nodejs', 'react'],
+    }
+
+    auth_headers = {
+        'HTTP_AUTHORIZATION': 'JWT ' + get_default_user_token()
+    }
+
+    response = client.post(path=path, data=data, content_type='application/json',
+                           **auth_headers)
+
+
 def get_default_user_token():
     return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJwYXNzd29yZF9oYXNoIjoiMmNmMjRkYmE1ZmIwYTMwZTI2ZTgzYjJhYzViOWUyOWUxYjE2MWU1YzFmYTc0MjVlNzMwNDMzNjI5MzhiOTgyNCIsInBsYXRmb3JtX2lkIjoxfQ.DWwfIdkPy34nrOY6joejjD_AoaJRqtaiOYA1qJNMTHU'
