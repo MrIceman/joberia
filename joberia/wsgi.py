@@ -16,5 +16,4 @@ from load_env import read_env
 read_env()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "joberon.settings")
-
 application = get_wsgi_application()

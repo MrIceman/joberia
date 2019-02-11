@@ -7,6 +7,7 @@ urlpatterns = [
     path('', include('joberia.apps.home.urls')),
     path('alert/', include('joberia.apps.alert.urls')),
     path('user/', include('joberia.apps.user.urls')),
+    path('job', include('joberia.apps.job.urls')),
     path('job/', include('joberia.apps.job.urls')),
     path('panel/', include('joberia.apps.panel.urls')),
     path('admin/', admin.site.urls),

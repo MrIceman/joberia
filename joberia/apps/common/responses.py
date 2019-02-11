@@ -1,5 +1,5 @@
-def create_data_does_not_exist_response():
-    return __template_error_response('Item does not exist.')
+def create_data_does_not_exist_response(message='Item does not exist.'):
+    return __template_error_response(message)
 
 
 def create_user_does_not_exist_response():

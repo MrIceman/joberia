@@ -19,7 +19,7 @@ class CreateJobTest(unittest.TestCase):
         create_default_job(self.client)
 
     def test_job_gets_created(self):
-        path = '/job/'
+        path = '/job'
 
         data = {
             'title': 'Joberia AI Engineer',
@@ -39,7 +39,6 @@ class CreateJobTest(unittest.TestCase):
 
         response = self.client.post(path=path, data=data, content_type='application/json',
                                     **auth_headers)
-
         # check that job was created
 
         jobs = Job.objects.all()
@@ -57,22 +56,21 @@ class GetJobTest(unittest.TestCase):
 
     def setUp(self):
         self.client = Client()
-
-        Job.objects.all().delete()
         create_default_platform(self.client)
         create_default_user(self.client, 'mrtn', 'mrtnnwsd@gmail.com', password='hello')
         create_default_job(self.client)
 
     def test_returns_whole_list(self):
-        path = '/job/'
+        path = '/job?platform=1'
         response = self.client.get(path=path)
         result = json.loads(str(response.content, encoding='utf-8'))
         job = Job.objects.all().first()
         data = JobSerializer(instance=job).data
+
         self.assertEqual(result[0], data)
 
     def test_returns_single_eleemnt(self):
-        path = '/job/?id=1'
+        path = '/job?id=1'
         response = self.client.get(path=path)
         result = json.loads(str(response.content, encoding='utf-8'))
         job = Job.objects.filter(pk=1).first()
@@ -82,14 +80,13 @@ class GetJobTest(unittest.TestCase):
 
 class DeleteJobTest(unittest.TestCase):
     def setUp(self):
-        #   Job.objects.all().delete()
         self.client = Client()
         create_default_platform(self.client)
         create_default_user(self.client, 'mrtn', 'mrtnnwsd@gmail.com', password='hello')
         create_default_job(self.client)
 
     def test_deletes_single_eleemnt(self):
-        path = '/job/?id=1'
+        path = '/job?id=1'
         auth_headers = {
             'HTTP_AUTHORIZATION': 'JWT ' + get_default_user_token()
         }
@@ -110,7 +107,7 @@ class EditJobTest(unittest.TestCase):
         create_default_job(self.client)
 
     def test_deletes_single_eleemnt(self):
-        path = '/job/'
+        path = '/job'
         auth_headers = {
             'HTTP_AUTHORIZATION': 'JWT ' + get_default_user_token()
         }
@@ -121,5 +118,5 @@ class EditJobTest(unittest.TestCase):
         }
 
         response = self.client.put(path=path, data=data, **auth_headers, content_type='application/json')
-
-        print(response.content)
+        response_data = json.loads(str(response.content, encoding='utf-8'))
+        self.assertEqual(response_data['description'], data['description'])

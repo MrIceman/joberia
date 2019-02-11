@@ -60,12 +60,15 @@ class JobView(View):
 
     def get(self, request):
         job_id = request.GET.get('id')
+        platform_id = request.GET.get('platform')
         if job_id is None:
-            jobs = Job.objects.all()
-            serializer = JobSerializer(instance=jobs, many=True)
-            return JsonResponse(serializer.data, safe=False)
-
-        job = Job.objects.filter(pk=job_id).first()
+            if platform_id is not None:
+                jobs = Job.objects.filter(platform_id=platform_id).all()
+                serializer = JobSerializer(instance=jobs, many=True)
+                return JsonResponse(serializer.data, safe=False)
+            else:
+                return JsonResponse(create_data_does_not_exist_response('Platform does not exist'))
+        job = Job.objects.filter(pk=job_id, platform_id=platform_id).first()
         serializer = JobSerializer(instance=job)
         return JsonResponse(serializer.data)
 
@@ -108,20 +111,37 @@ class JobView(View):
 class CommentView(View):
 
     @method_decorator(jwt_required)
-    def post(self, request, job_id, *args, **kwargs):
-        job = Job.objects.filter(pk=job_id).first()
+    def delete(self, request, *args, **kwargs):
+        job_id = request.GET.get('job_id')
+        comment_id = request.GET.get('id')
         user = kwargs.get(REQUEST_KEY_USER)
         platform = kwargs.get(REQUEST_KEY_PLATFORM)
+        job = Job.objects.filter(pk=job_id, created_by=user.pk, platform=platform.pk).first()
+        if job is None:
+            return JsonResponse(create_data_does_not_exist_response('Job does not exist.'))
+        else:
+            comment = job.comments.filter(pk=comment_id).first()
+            if comment is None:
+                return JsonResponse(
+                    create_data_does_not_exist_response('Comment {} does not exist.'.format(comment_id)))
+            comment.delete()
+            return JsonResponse(
+                create_action_successful_response('Comment {id} was deleted successfully.'.format(id=comment_id)))
+
+    @method_decorator(jwt_required)
+    def post(self, request, *args, **kwargs):
+        comment_data = JSONParser().parse(request)
+        user = kwargs.get(REQUEST_KEY_USER)
+        platform = kwargs.get(REQUEST_KEY_PLATFORM)
+        job = Job.objects.filter(pk=comment_data['job_id'], created_by=user.pk, platform=platform.pk).first()
         if job is None:
             return JsonResponse(create_data_does_not_exist_response())
-        comment_data = JSONParser().parse(request)
+        comment_data.update({'job': comment_data['job_id']})
         comment_data.update({'platform': platform.pk})
         comment_data.update({'author': user.pk})
         serializer = CommentSerializer(data=comment_data)
         if serializer.is_valid():
             instance = serializer.save()
-            instance.platform = platform
-            instance.save()
             return JsonResponse(serializer.data)
         else:
             return JsonResponse(create_failed_message(serializer.errors))
