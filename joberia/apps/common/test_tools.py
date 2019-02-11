@@ -39,6 +39,22 @@ def create_default_user(client, username='django', email='django@gmail.com', pas
     return response
 
 
+def create_default_comment(client, job_id='1', user_id='1'):
+    data = {
+        'author': user_id,
+        'text': 'Hi it is me again...',
+        'job': job_id,
+    }
+
+    path = '/job/{job_id}/comment'.format(job_id=job_id)
+    auth_headers = {
+        'HTTP_AUTHORIZATION': 'JWT ' + get_default_user_token()
+    }
+
+    client.post(path=path, data=data,
+                content_type='application/json', **auth_headers)
+
+
 def create_default_job(client):
     path = '/job/'
     data = {

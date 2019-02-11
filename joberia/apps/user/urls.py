@@ -2,7 +2,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from joberia.apps.user.views import (
-    Login, Register, confirm_register, PasswordForgot, PasswordReset, Logout
+    Login, Register, PasswordForgot, PasswordReset, Logout
 )
 
 urlpatterns = [
