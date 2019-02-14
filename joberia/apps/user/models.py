@@ -13,7 +13,7 @@ class User(AbstractUser):
     disabled = models.BooleanField(default=False)
     confirm_hash = models.CharField(max_length=160, default='')
     organization = models.ForeignKey(Organization, null=True, related_name='users', on_delete=models.DO_NOTHING)
-    platform = models.ForeignKey(Platform, null=False, related_name='users', on_delete=models.DO_NOTHING)
+    platform = models.ForeignKey(Platform, null=True, related_name='users', on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return '{} / {}'.format(self.email, self.username)
