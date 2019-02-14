@@ -9,6 +9,7 @@ from joberia.apps.common.responses import create_failed_message, create_data_doe
     create_not_authorized_response, create_action_successful_response
 from joberia.apps.job.models import OfferedItem, Job, Bonus, Tag, DesiredProfileItem, Comment
 from joberia.apps.job.serializers import JobSerializer, CommentSerializer
+from joberia.apps.spawner.models import Platform
 
 
 class JobView(View):
@@ -63,11 +64,14 @@ class JobView(View):
         platform_id = request.GET.get('platform')
         if job_id is None:
             if platform_id is not None:
+                platform = Platform.objects.filter(pk=platform_id).first()
+                if platform is None:
+                    return JsonResponse(create_data_does_not_exist_response('Platform does not exist.'))
                 jobs = Job.objects.filter(platform_id=platform_id).all()
                 serializer = JobSerializer(instance=jobs, many=True)
                 return JsonResponse(serializer.data, safe=False)
             else:
-                return JsonResponse(create_data_does_not_exist_response('Platform does not exist'))
+                return JsonResponse(create_data_does_not_exist_response('Platform ID required'))
         job = Job.objects.filter(pk=job_id, platform_id=platform_id).first()
         serializer = JobSerializer(instance=job)
         return JsonResponse(serializer.data)
