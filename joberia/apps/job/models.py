@@ -89,9 +89,9 @@ class Tag(Base):
     )
     type = models.CharField(choices=TYPES, default='skill', db_index=True, max_length=10)
     name = models.CharField(max_length=100, db_index=True)
-    job = models.ForeignKey(to=Job, related_name='tags', null=True, on_delete=models.CASCADE,
+    job = models.ForeignKey(to=Job, related_name='tags', null=True, blank=True, on_delete=models.CASCADE,
                             unique=False)
-    user = models.ForeignKey(to=User, related_name='tags', null=True, on_delete=models.CASCADE,
+    user = models.ForeignKey(to=User, related_name='tags', null=True, blank=True, on_delete=models.CASCADE,
                              unique=False)
 
     def __str__(self):
